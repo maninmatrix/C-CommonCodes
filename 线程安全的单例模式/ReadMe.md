@@ -2,4 +2,5 @@ linux提供了一个叫pthread_once()的函数，它保证在一个进程中，�
 本例子在linux环境下运行shell脚本。
 
 chmod 755 make.sh
+
 ./make.sh
