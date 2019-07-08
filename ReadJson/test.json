@@ -1,0 +1,10 @@
+{
+	"MYINTTYPE":100,
+    "MYSTRINGTYPE":"HELLO,JSON",
+	"ARRAY_CONFIG":[
+		{"type":1,"score":2},
+		{"type":2,"score":3},
+		{"type":3,"score":4},
+		{"type":4,"score":5}
+	]
+}
