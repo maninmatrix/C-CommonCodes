@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="GBK" ?>
+<config>
+    <pond_config current_pond="170000"/>
+    <table_info initial_pond="170000">
+        <table_info_item table_id="0"/>
+    </table_info>
+</config>
