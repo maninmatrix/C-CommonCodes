@@ -4,6 +4,9 @@
 #include "Game/GameProvider.h"
 #include "GameServerNode.h"
 #include "ReconnectService.h"
+#include "ThreadPool.h"
+#include "ThreadPoo.hpp"
+#include "WorkThreadLogic.h"
 using namespace std;
 class MainLogic : public GameProvider
 {
@@ -21,13 +24,17 @@ public:
 	long ConnectServer(const char *lpszServerName, IPlayerNode *&lpPlayerNode);
 	long ConnectMasterServer();
 public:
-	void HandleSayHiReq(IPlayerNode *lpPlayerNode, void *buffer, long length);
+	
 	void OnServerRegisterReq(IPlayerNode *lpPlayerNode, void *buffer, long length);
+	void SendHi();
 public:
 	IPlayerNode *m_lpMyServer;
 	GameServerNode *m_lpServerNode;
 	static MainLogic* m_pThis;
 	ReconnectService m_Reconnect;
 	IPlayerNode * m_pProducer;
+public:
+	ThreadPool< CWorkThread >* m_pGameMsgPool;
+	CMutex          m_mutMapThread;
 };
 #endif
