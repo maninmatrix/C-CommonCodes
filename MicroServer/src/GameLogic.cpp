@@ -1,6 +1,7 @@
 #include "GameLogic.h"
 #include "GameServerNode.h"
 #include "BaseMsg.h"
+#include "WorkThreadLogic.h"
 CIniFile g_cfg;
 MainLogic* MainLogic::m_pThis = nullptr;
 MainLogic::MainLogic()
@@ -24,7 +25,8 @@ MainLogic::MainLogic()
 	{
 		__log(_ERROR, "MainLogic", "GameProvider::Initialize() error !");
 	}
-	
+	m_pGameMsgPool = new ThreadPool< CWorkThread >;
+	m_pGameMsgPool->AddTaskArgs(4096, 10);
 }
 
 MainLogic::~MainLogic()
@@ -36,7 +38,7 @@ void MainLogic::OnTimer(long tmNow)
 {
 	static time_t tLastTimeRead = time(NULL);
 	static int mStatus = 0;
-	//Ò»¶¨Ê±¼ä¶ÁÈ¡Ò»´ÎÅäÖÃÎÄ¼þ
+	//Ò»ï¿½ï¿½Ê±ï¿½ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 	if (tmNow - tLastTimeRead >= 3)
 	{
 		tLastTimeRead = tmNow;
@@ -44,22 +46,20 @@ void MainLogic::OnTimer(long tmNow)
 }
 void MainLogic::OnNetMessage(IPlayerNode *lpPlayerNode, unsigned short type, void *buffer, long length)
 {
-	switch (type)
+	printf("MainLogic::OnNetMessage type %0x\n", type);
+	CWorkThread* mthread = m_pGameMsgPool->take();
+	if (mthread != NULL)
 	{
-		printf("type %0x\n", type);
-		case GAME_SERVER_ID_NOTICE:
-		{								
-			OnServerRegisterReq(lpPlayerNode, buffer, length);
-			break;
-		}
-		case S_S_SAYHI_INFO:
-		{
-			HandleSayHiReq(lpPlayerNode, buffer, length);
-			break;
-		}
-		default:
-			break;
+		__log(_DEBUG, __FUNCTION__, "take thread %s", mthread->GetMsgQueName());
+		m_pGameMsgPool->take()->EnQueGameMsg(lpPlayerNode, type, buffer, length);
+		
 	}
+	else
+	{
+		__log(_ERROR, __FUNCTION__, "take thread error");
+	}
+	
+	
 }
 
 long MainLogic::Start()
@@ -82,7 +82,7 @@ long MainLogic::Start()
 		char szAddr[32] = { 0 };
 		int iPort = 0;
 		sscanf(szBuffer, "%[^:]:%d", szAddr, &iPort);
-
+                 __log(_DEBUG, "MainLogic", "szAddr %s", szAddr);
 		m_lpMyServer = GameProvider::Create(true, szAddr, iPort, 0, iMaxConn);
 
 		if (NULL != m_lpMyServer)
@@ -112,9 +112,11 @@ long MainLogic::Start()
 	if (0 == ConnectMasterServer())
 	{
 		__log(_DEBUG, __FUNCTION__, "connect master success");
-		SS_SayHi mMsgBack;
-		mMsgBack.iSendNum = 0;
-		SendData(m_pProducer,S_S_SAYHI_INFO, &mMsgBack, sizeof(mMsgBack));
+		for (int i = 0; i < 1;i++)
+		{
+			SendHi();
+		}
+		
 	}
 	else
 	{
@@ -169,7 +171,7 @@ void MainLogic::OnClosed(IPlayerNode *lpPlayerNode, bool bClosed)
 	{
 		GameServerNode* pServerNode = (GameServerNode*)lpPlayerNode;
 		__log(_WARN, __FUNCTION__, "client has been closed! bClosed[%d], serverid[%d]", bClosed, pServerNode->m_iServerD);
-		if (NULL == pServerNode->m_lpPrior) //Í·½Úµã
+		if (NULL == pServerNode->m_lpPrior) //Í·ï¿½Úµï¿½
 		{
 			m_lpServerNode = pServerNode->m_lpNext;
 			if (NULL != m_lpServerNode)
@@ -245,15 +247,6 @@ long MainLogic::ConnectServer(const char *lpszServerName, IPlayerNode *&lpPlayer
 	return lResult;
 }
 
-void MainLogic::HandleSayHiReq(IPlayerNode *lpPlayerNode, void *buffer, long length)
-{
-	SS_SayHi* mMsg = (SS_SayHi*)buffer;
-	S_S_MSG_TYPE mMsgType;
-	SS_SayHi mMsgBack;
-	cout << "receve num value:" << mMsg->iSendNum << endl;
-	mMsgBack.iSendNum = mMsg->iSendNum + 1;
-	SendData(lpPlayerNode, S_S_SAYHI_INFO, &mMsgBack, sizeof(mMsgBack));
-}
 
 long MainLogic::ConnectMasterServer()
 {
@@ -269,4 +262,11 @@ long MainLogic::ConnectMasterServer()
 	}
 
 	return lResult;
+}
+
+void MainLogic::SendHi()
+{
+	SS_SayHi mMsgBack;
+	mMsgBack.iSendNum = 0;
+	SendData(m_pProducer, S_S_SAYHI_INFO, &mMsgBack, sizeof(mMsgBack));
 }
