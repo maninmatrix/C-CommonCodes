@@ -111,10 +111,13 @@ void CWorkThread::HandleSayHiReq(IPlayerNode *lpPlayerNode, void *buffer, long l
 	SS_SayHi mMsgBack;
 	//cout << "receve num value:" << mMsg->iSendNum << endl;
 	__log(_ERROR, __FUNCTION__, "receve num value: %d", mMsg->iSendNum);
-	if (mMsg->iSendNum <= 10000)
+	if (mMsg->iSendNum <= 10)
 	{
 	//sleep(1);
 	mMsgBack.iSendNum = mMsg->iSendNum + 1;
 	MainLogic::Instance().SendData(lpPlayerNode, S_S_SAYHI_INFO, &mMsgBack, sizeof(mMsgBack));
 	}
 }
+
+
+

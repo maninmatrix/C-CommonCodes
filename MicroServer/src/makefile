@@ -4,7 +4,7 @@ OBJECTPATH := ../../obj/$(TARGETNAME)
 # 0 -- Application; 1 -- Static library; 2 -- Dynamic library
 TARGETTYPE = 0
 TARGETINCS = -I../include -I../lib/include
-TARGETLIBS = ../lib/GameProvider.a  ../lib/Common.a ../lib/Epoll.a ../lib/libaes.a
+TARGETLIBS = ../lib/GameProvider.a  ../lib/Common.a ../lib/Epoll.a ../lib/libaes.a ../lib/libxredis.a ../lib/libhiredis.a
 
 CPP = g++ -std=c++11
 DEBUG = -g -DDEBUG -D_REENTRANT -w

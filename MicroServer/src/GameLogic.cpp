@@ -6,6 +6,7 @@ CIniFile g_cfg;
 MainLogic* MainLogic::m_pThis = nullptr;
 MainLogic::MainLogic()
 {
+	m_lpRedisServer = new CRedisServer();
 	m_lpMyServer = nullptr;
 	m_lpServerNode = nullptr;
 	g_cfg.InitFile(CONFIG_FILE);
@@ -122,6 +123,44 @@ long MainLogic::Start()
 	{
 		__log(_ERROR, __FUNCTION__, "connect master failed");
 	}
+	if (m_lpRedisServer)
+	{
+		char cRedisIP[20];
+		sprintf(cRedisIP, "%s", "10.7.125.26");
+		char cRedisSecert[20];
+		sprintf(cRedisSecert, "%s", "123456");
+		if (!m_lpRedisServer->Start(cRedisIP, 6667, cRedisSecert, 30))
+		{
+			__log(_ERROR, "main", "redis listen:start failed!");
+			return false;
+		}
+		else
+		{
+			__log(_DEBUG, "main", "redis listen:start  success!");
+		}
+		//test
+		for (int i = 10080; i < 10090;i++)
+		{
+			sleep(1);
+			//int irand = rand() % 10000;
+			int irand = 10000;
+			//m_lpRedisServer->PushRedisRequestUserID(i);
+			m_lpRedisServer->ZaddPlayerSCore(i, irand, time(NULL));
+			
+		}
+		vector<PlayerInfo> m_vRankList;
+		m_lpRedisServer->PrintfRanklist(10, m_vRankList);
+		int64_t iRank = 0;
+		/*m_lpRedisServer->GetPlayerRank(10080, iRank);
+		m_lpRedisServer->UpdatePlayerHighScore(10080, 500, time(NULL));
+		m_lpRedisServer->UpdatePlayerHighScore(10080, 9999, time(NULL));
+		m_lpRedisServer->GetPlayersAfter(10480, 5);
+		m_lpRedisServer->GetPlayersBefore(10480, 5);
+
+		cout<< "score str:"<< m_lpRedisServer->ConvertScoreToStr(100, time(NULL))<<endl;*/
+	}
+	
+
 	return lResult;
 }
 
