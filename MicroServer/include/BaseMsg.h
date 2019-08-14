@@ -4,6 +4,7 @@
 #define CONFIG_FILE SERVER_NAME ".cfg"
 #define LOG_FILE    SERVER_NAME ".log"
 #define  GAME_SERVER_ID_NOTICE  0xFEFE
+#include "Game/NetMessage.h"
 enum  S_S_MSG_TYPE
 {
 	S_S_SAYHI_INFO = 0x1901
@@ -24,5 +25,12 @@ typedef struct tagGameServerIdNotice
 	Header;
 	unsigned int ulServerID;
 }GameServerIdNotice, *PGameServerIdNotice;
+
+struct PlayerInfo
+{
+	PlayerInfo(int iPlayerID, int iPlayerScore) :iUID(iPlayerID), iScore(iPlayerScore){}
+	int iUID;
+	int iScore;
+};
 #pragma pack()
 #endif

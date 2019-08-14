@@ -3,7 +3,8 @@
 #include "work_thread.h"
 #include "msgqueue.h"
 #include "GameServerNode.h"
-
+#include <functional>
+using namespace std;
 #define LOBBY_LOGIN_REQ 0x001
 
 class CWorkThread:public Thread

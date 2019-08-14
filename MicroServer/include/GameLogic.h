@@ -7,7 +7,9 @@
 #include "ThreadPool.h"
 #include "ThreadPoo.hpp"
 #include "WorkThreadLogic.h"
+#include "RedisServer.h"
 using namespace std;
+class CRedisServer;
 class MainLogic : public GameProvider
 {
 public:
@@ -28,6 +30,7 @@ public:
 	void OnServerRegisterReq(IPlayerNode *lpPlayerNode, void *buffer, long length);
 	void SendHi();
 public:
+	CRedisServer *m_lpRedisServer;
 	IPlayerNode *m_lpMyServer;
 	GameServerNode *m_lpServerNode;
 	static MainLogic* m_pThis;
